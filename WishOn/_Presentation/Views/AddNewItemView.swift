@@ -6,20 +6,25 @@
 //
 
 import SwiftUI
+import PhotosUI
 
 struct AddNewItemView: View {
+    
     @Binding var isShown: Bool
     @State private var name = ""
     @State private var wishLink = ""
     @State private var imageLink = ""
     @State private var price = ""
     @State private var currency = "UAH"
-    @Binding var wishes: [Wish]
+    @State private var pickerItem: PhotosPickerItem?
+    @State private var selectedImage: Image?
     
-    private let currencies = ["USD", "EUR", "UAH"]
+    @Binding var wishes: [Wish]
+    let currencies = Locale.commonISOCurrencyCodes.sorted()
+    
     var body: some View {
         ZStack{
-            Color.black.opacity(0.4)
+            Color.white.opacity(0.1)
                 .ignoresSafeArea()
             VStack {
                 HStack{
@@ -33,11 +38,37 @@ struct AddNewItemView: View {
                     .frame(width: 24, height: 24)
                 }
                 .frame(maxWidth: .infinity, alignment: .trailing)
-                Image("filofax")
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 140, height: 140)
-                    .clipShape(.circle)
+                ZStack{
+                    if selectedImage == nil {
+                        Image(systemName: "gift.circle.fill")
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 140, height: 140)
+                            .foregroundColor(Color(Asset.primaryColor.color).opacity(0.8))
+                            .clipShape(.circle)
+                    } else {
+                        selectedImage?
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 140, height: 140)
+                            .clipShape(.circle)
+                    }
+                    
+                    PhotosPicker(selection: $pickerItem, matching: .images, preferredItemEncoding: .current) {
+                        Image(systemName: "plus.circle")
+                            .resizable()
+                            .foregroundColor(Color(Asset.primaryColor.color))
+                    }
+                    .frame(width: 24, height: 24)
+                    .padding(.top, 110)
+                    .padding(.leading, 80)
+                    .onChange(of: pickerItem) {
+                        Task {
+                            selectedImage = try await pickerItem?.loadTransferable(type: Image.self)
+                        }
+                    }
+                }
+                
                 TextField("Name", text: $name)
                     .textFieldStyle(.roundedBorder)
                 TextField("Link", text: $wishLink)

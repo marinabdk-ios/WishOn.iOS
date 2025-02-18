@@ -17,11 +17,12 @@ struct WishOnApp: App {
     let persistenceController = PersistenceController.shared
     
     init() {
-    #if DEBUG
-            WishOnApp.unitTestConfig()
-    #else
+        FirebaseApp.configure()
+//    #if DEBUG
+//            WishOnApp.unitTestConfig()
+//    #else
         DIRepositoriesContainer.shared.register(repository: WishListRepository() as WishListRepositoryProtocol)
-    #endif
+    //#endif
         
         _wishListVM = StateObject(
             wrappedValue: WishListViewModel()
@@ -57,7 +58,7 @@ struct WishOnApp: App {
 class AppDelegate: NSObject, UIApplicationDelegate {
   func application(_ application: UIApplication,
                    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-    FirebaseApp.configure()
+   // FirebaseApp.configure()
 
     return true
   }
