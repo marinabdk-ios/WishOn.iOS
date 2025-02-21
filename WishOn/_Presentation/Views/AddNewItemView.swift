@@ -7,8 +7,12 @@
 
 import SwiftUI
 import PhotosUI
+import SwiftSoup
+import Combine
 
 struct AddNewItemView: View {
+    @StateObject private var imageLoader = ImageLoaderService()
+    @StateObject private var webScrapingService = WebScrapingService.shared
     
     @Binding var isShown: Bool
     @State private var name = ""
@@ -18,9 +22,12 @@ struct AddNewItemView: View {
     @State private var currency = "UAH"
     @State private var pickerItem: PhotosPickerItem?
     @State private var selectedImage: UIImage?
+    @State private var timer: Timer? = nil
     
     @Binding var wishes: [Wish]
     let currencies = Locale.commonISOCurrencyCodes.sorted()
+    
+    @State private var cancellables = Set<AnyCancellable>()
     
     var body: some View {
         ZStack{
@@ -41,6 +48,12 @@ struct AddNewItemView: View {
                 ZStack{
                     if let selectedImage {
                         Image(uiImage: selectedImage)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 140, height: 140)
+                            .clipShape(.circle)
+                    } else if let image = imageLoader.image {
+                        Image(uiImage: image)
                             .resizable()
                             .scaledToFill()
                             .frame(width: 140, height: 140)
@@ -67,7 +80,7 @@ struct AddNewItemView: View {
                             if let pickerItem,
                                let data = try await pickerItem.loadTransferable(type: Data.self),
                                let uiImage = UIImage(data: data) {
-                                selectedImage = fixOrientation(uiImage)
+                                selectedImage = ImageUtils.fixOrientation(for: uiImage)
                             }
                         }
                     }
@@ -77,6 +90,26 @@ struct AddNewItemView: View {
                     .textFieldStyle(.roundedBorder)
                 TextField("Link", text: $wishLink)
                     .textFieldStyle(.roundedBorder)
+                    .onChange(of: wishLink) { _, newValue in
+                        timer?.invalidate()
+                        
+                        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { _ in
+                            webScrapingService.fetchOpenGraphData(from: newValue)
+                                .sink(receiveCompletion: { _ in },
+                                      receiveValue: { imageURL, price, title in
+                                    if let imageURL = imageURL {
+                                        imageLoader.loadImage(from: URL(string: imageURL)!)
+                                    }
+                                    if let price = price {
+                                        self.price = price
+                                    }
+                                    if let title = title {
+                                        self.name = title
+                                    }
+                                })
+                                .store(in: &cancellables)
+                        }
+                    }
                 
                 HStack{
                     TextField("Price", text: $price)
@@ -102,7 +135,7 @@ struct AddNewItemView: View {
                     wishes.append(wish)
                     isShown = false
                 } label: {
-                    Text("Create")
+                    Text("Add wish")
                         .padding(.horizontal, 16)
                         .foregroundStyle(Color(Asset.greenButtonTextColor.color))
                 }
@@ -118,19 +151,6 @@ struct AddNewItemView: View {
             .shadow(color: Color.black.opacity(0.05), radius: 1, x: 0, y: 1)
             .padding(.horizontal, 16)
         }
-    }
-    
-    func fixOrientation(_ image: UIImage) -> UIImage {
-        if image.imageOrientation == .up {
-            return image
-        }
-
-        UIGraphicsBeginImageContextWithOptions(image.size, false, image.scale)
-        image.draw(in: CGRect(origin: .zero, size: image.size))
-        let normalizedImage = UIGraphicsGetImageFromCurrentImageContext()!
-        UIGraphicsEndImageContext()
-
-        return normalizedImage
     }
 }
 

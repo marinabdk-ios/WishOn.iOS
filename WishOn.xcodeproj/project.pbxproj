@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		EA5E25782D42797600B3ED34 /* gitignore.txt in Resources */ = {isa = PBXBuildFile; fileRef = EA5E25772D42797600B3ED34 /* gitignore.txt */; };
 		EA5E257E2D4298D700B3ED34 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = EA5E25792D428EB900B3ED34 /* Localizable.strings */; };
+		EA88DC682D68E10800F4FB03 /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = EA88DC672D68E10800F4FB03 /* SwiftSoup */; };
 		EAD48B462CF7929900C0A29D /* swiftgen.yml in Resources */ = {isa = PBXBuildFile; fileRef = EAD48B452CF7929900C0A29D /* swiftgen.yml */; };
 		EAF55A712D53C316009E4AEC /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = EAF55A702D53C316009E4AEC /* FirebaseAuth */; };
 		EAF55A732D53C316009E4AEC /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = EAF55A722D53C316009E4AEC /* FirebaseFirestore */; };
@@ -73,6 +74,7 @@
 				Sources/Generated/Strings.swift,
 				Utilitites/AccessibilityIdentifiers.swift,
 				Utilitites/Constants.swift,
+				Utilitites/ImageUtils.swift,
 				Utilitites/LocalizedStrings.swift,
 			);
 			target = EAD48B0F2CF59C5300C0A29D /* WishOnUITests */;
@@ -119,6 +121,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EAF55AE42D54EE91009E4AEC /* FirebaseFirestoreCombine-Community in Frameworks */,
+				EA88DC682D68E10800F4FB03 /* SwiftSoup in Frameworks */,
 				EAF55A712D53C316009E4AEC /* FirebaseAuth in Frameworks */,
 				EAF55A732D53C316009E4AEC /* FirebaseFirestore in Frameworks */,
 			);
@@ -205,6 +208,7 @@
 				EAF55A702D53C316009E4AEC /* FirebaseAuth */,
 				EAF55A722D53C316009E4AEC /* FirebaseFirestore */,
 				EAF55AE32D54EE91009E4AEC /* FirebaseFirestoreCombine-Community */,
+				EA88DC672D68E10800F4FB03 /* SwiftSoup */,
 			);
 			productName = WishOn;
 			productReference = EAD48AF12CF59C5100C0A29D /* WishOn.app */;
@@ -293,6 +297,7 @@
 			packageReferences = (
 				EAF55A6F2D53C316009E4AEC /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				EA88DC582D649D9600F4FB03 /* XCRemoteSwiftPackageReference "Swinject" */,
+				EA88DC662D68E08300F4FB03 /* XCRemoteSwiftPackageReference "SwiftSoup" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = EAD48AF22CF59C5100C0A29D /* Products */;
@@ -685,6 +690,14 @@
 				minimumVersion = 2.9.1;
 			};
 		};
+		EA88DC662D68E08300F4FB03 /* XCRemoteSwiftPackageReference "SwiftSoup" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/scinfu/SwiftSoup";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.8.0;
+			};
+		};
 		EAF55A6F2D53C316009E4AEC /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
@@ -696,6 +709,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		EA88DC672D68E10800F4FB03 /* SwiftSoup */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = EA88DC662D68E08300F4FB03 /* XCRemoteSwiftPackageReference "SwiftSoup" */;
+			productName = SwiftSoup;
+		};
 		EAF55A702D53C316009E4AEC /* FirebaseAuth */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = EAF55A6F2D53C316009E4AEC /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
