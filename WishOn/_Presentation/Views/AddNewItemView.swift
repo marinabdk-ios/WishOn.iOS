@@ -17,7 +17,7 @@ struct AddNewItemView: View {
     @State private var price = ""
     @State private var currency = "UAH"
     @State private var pickerItem: PhotosPickerItem?
-    @State private var selectedImage: Image?
+    @State private var selectedImage: UIImage?
     
     @Binding var wishes: [Wish]
     let currencies = Locale.commonISOCurrencyCodes.sorted()
@@ -39,32 +39,36 @@ struct AddNewItemView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .trailing)
                 ZStack{
-                    if selectedImage == nil {
+                    if let selectedImage {
+                        Image(uiImage: selectedImage)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 140, height: 140)
+                            .clipShape(.circle)
+                    } else {
                         Image(systemName: "gift.circle.fill")
                             .resizable()
                             .scaledToFill()
                             .frame(width: 140, height: 140)
                             .foregroundColor(Color(Asset.primaryColor.color).opacity(0.8))
                             .clipShape(.circle)
-                    } else {
-                        selectedImage?
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 140, height: 140)
-                            .clipShape(.circle)
                     }
                     
                     PhotosPicker(selection: $pickerItem, matching: .images, preferredItemEncoding: .current) {
                         Image(systemName: "plus.circle")
                             .resizable()
-                            .foregroundColor(Color(Asset.primaryColor.color))
+                            .foregroundColor(Color.white)
                     }
                     .frame(width: 24, height: 24)
                     .padding(.top, 110)
                     .padding(.leading, 80)
                     .onChange(of: pickerItem) {
                         Task {
-                            selectedImage = try await pickerItem?.loadTransferable(type: Image.self)
+                            if let pickerItem,
+                               let data = try await pickerItem.loadTransferable(type: Data.self),
+                               let uiImage = UIImage(data: data) {
+                                selectedImage = fixOrientation(uiImage)
+                            }
                         }
                     }
                 }
@@ -114,6 +118,19 @@ struct AddNewItemView: View {
             .shadow(color: Color.black.opacity(0.05), radius: 1, x: 0, y: 1)
             .padding(.horizontal, 16)
         }
+    }
+    
+    func fixOrientation(_ image: UIImage) -> UIImage {
+        if image.imageOrientation == .up {
+            return image
+        }
+
+        UIGraphicsBeginImageContextWithOptions(image.size, false, image.scale)
+        image.draw(in: CGRect(origin: .zero, size: image.size))
+        let normalizedImage = UIGraphicsGetImageFromCurrentImageContext()!
+        UIGraphicsEndImageContext()
+
+        return normalizedImage
     }
 }
 
